@@ -1,0 +1,246 @@
+openapi: 3.0.0
+info:
+  title: File Management System API
+  version: 1.0.0
+  description: API documentation for managing users, folders, documents, versions, and search.
+servers:
+  - url: http://localhost:5000
+
+paths:
+  /folders:
+    post:
+      summary: Create a new folder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                parentFolder:
+                  type: string
+                  nullable: true
+      responses:
+        '201':
+          description: Folder created
+
+  /viewstore:
+    get:
+      summary: Get root-level folders
+      responses:
+        '200':
+          description: List of folders
+
+  /viewstore/{folderId}:
+    get:
+      summary: Get folder content (subfolders and documents)
+      parameters:
+        - name: folderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Folder details
+
+  /folders/{id}:
+    put:
+      summary: Update folder details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: Folder updated
+
+    delete:
+      summary: Delete a folder
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Folder deleted
+
+  /documents:
+    post:
+      summary: Create a new document
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                folder:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Document created
+
+  /documents/{id}:
+    get:
+      summary: Get document details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document retrieved
+
+    put:
+      summary: Update document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+      responses:
+        '200':
+          description: Document updated
+
+    delete:
+      summary: Delete a document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document deleted
+
+  /documents/{id}/version:
+    post:
+      summary: Upload a new version
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                versionNumber:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Version created
+
+  /documents/{id}/versions:
+    get:
+      summary: Get all versions of a document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Version list
+
+  /filter:
+    get:
+      summary: Filter documents with folder path
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Filtered documents
+
+  /total-documents:
+    get:
+      summary: Get total document count for authenticated user
+      responses:
+        '200':
+          description: Total documents
+
+  /register:
+    post:
+      summary: User registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: User registered
+
+  /login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Auth token returned
