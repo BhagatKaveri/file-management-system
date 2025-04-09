@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String   @id @default(uuid())
+  email    String   @unique
+  password String
+  folders  Folder[]
+  documents Document[]
+}
+
+model Folder {
+  id           String     @id @default(uuid())
+  name         String
+  parentFolder String?    // stores the ID of the parent
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  parent       Folder?    @relation("FolderHierarchy", fields: [parentFolder], references: [id])
+  subfolders   Folder[]   @relation("FolderHierarchy") // alias for children
+  documents    Document[]
+}
+
+
+model Document {
+  id        String    @id @default(uuid())
+  title     String
+  content   String?
+  folderId  String
+  folder    Folder    @relation(fields: [folderId], references: [id])
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  versions  Version[]
+  createdAt DateTime  @default(now())
+}
+
+
+model Version {
+  id         String   @id @default(uuid())
+  version    String
+  fileUrl    String
+  uploadedAt DateTime @default(now())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id])
+}
